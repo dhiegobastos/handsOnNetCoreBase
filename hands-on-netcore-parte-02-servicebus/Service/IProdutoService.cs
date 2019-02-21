@@ -6,5 +6,4 @@ public interface IProdutoService
     IList<Produto> ObterProdutos();
     Produto ObterProdutoPorId(int id);
     Produto AddProduto(Produto produto);
-    void RemoverProduto(int id);
 }

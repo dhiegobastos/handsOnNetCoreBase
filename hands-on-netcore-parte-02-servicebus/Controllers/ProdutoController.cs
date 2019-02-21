@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using hands_on_netcore.Model.Domain;
 using hands_on_netcore.Model.DTO;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.ServiceBus;
+using Newtonsoft.Json;
 
 namespace hands_on_netcore.Controllers
 {
@@ -14,17 +17,23 @@ namespace hands_on_netcore.Controllers
     public class ProdutoController : ControllerBase
     {
         private readonly IProdutoService _produtoService;
+        private readonly IMapper _mapper;
 
-        public ProdutoController(IProdutoService produtoService)
+        private readonly IServiceBus _serviceBus;
+
+        public ProdutoController(IProdutoService produtoService, IMapper mapper,
+            IServiceBus serviceBus)
         {
             _produtoService = produtoService;
+            _mapper = mapper;
+            _serviceBus = serviceBus;
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Produto>> RecuperarLista()
+        public ActionResult<IEnumerable<ProdutoDto>> RecuperarLista()
         {
             IList<Produto> produtos = _produtoService.ObterProdutos();
-            return Ok(produtos);
+            return Ok(_mapper.Map<IList<ProdutoDto>>(produtos));
         }
 
         [HttpGet("{id}")]
@@ -33,23 +42,19 @@ namespace hands_on_netcore.Controllers
             Produto produto = _produtoService.ObterProdutoPorId(id);
             if (produto != null)
             {
-                return Ok(produto);
+                return Ok(_mapper.Map<ProdutoDto>(produto));
             }
             return NotFound(id);
         }
 
         [HttpPost]
-        public ActionResult<Produto> AdicionarProduto([FromBody] Produto produto)
+        public ActionResult<NovoProdutoDto> AdicionarProduto([FromBody] NovoProdutoDto novoProduto)
         {
-            Produto produtoCriado = _produtoService.AddProduto(produto);
-            return CreatedAtAction(nameof(RecuperarPodId), new { id = produtoCriado.Id }, produto);
-        }
+            Produto produto = _mapper.Map<Produto>(novoProduto);
 
-        [HttpDelete("{id}")]
-        public ActionResult RemoverProduto(int id)
-        {
-            _produtoService.RemoverProduto(id);
-            return Accepted();
+            Produto produtoCriado = _produtoService.AddProduto(produto);
+
+            return CreatedAtAction(nameof(RecuperarPodId), new { id = produtoCriado.Id }, novoProduto);
         }
     }
 }

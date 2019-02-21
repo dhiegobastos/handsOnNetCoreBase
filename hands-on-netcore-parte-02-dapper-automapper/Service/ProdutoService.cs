@@ -14,17 +14,22 @@ namespace hands_on_netcore.Service
 
         public IList<Produto> ObterProdutos()
         {
-            return null;
+            throw new NotImplementedException();
         }
 
         public Produto ObterProdutoPorId(int id)
         {
-            return null;
+            throw new NotImplementedException();
         }
 
         public Produto AddProduto(Produto produto)
         {
-            return null;
+            throw new NotImplementedException();
+        }
+
+        public void RemoverProduto(int id)
+        {
+            throw new NotImplementedException();
         }
 
     }
